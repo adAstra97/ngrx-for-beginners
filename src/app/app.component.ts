@@ -1,34 +1,34 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {Component} from '@angular/core';
+import {Store} from '@ngrx/store';
+import {clear, countSelector, decrease, increase} from './reducers/counter';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  public counter = 0;
-  public updateAt?: number;
+  updatedAt?: number;
 
-  get cannotDecrease(): boolean {
-    return this.counter <= 0;
+  count$ = this.store.select(countSelector);
+  cannotDecrease$ = this.count$.pipe(map(count => count <= 0));
+
+  constructor(private store: Store) {
   }
 
-  public increase(): void {
-    this.updateAt = Date.now();
-    this.counter++;
+  increase(): void {
+    this.updatedAt = Date.now();
+    this.store.dispatch(increase()); //указали action
   }
 
-  public decrease(): void {
-    this.updateAt = Date.now();
-    this.counter--;
+  decrease(): void {
+    this.updatedAt = Date.now();
+    this.store.dispatch(decrease());
   }
 
-  public clear(): void {
-    this.updateAt = Date.now();
-    this.counter = 0;
+  clear(): void {
+    this.updatedAt = Date.now();
+    this.store.dispatch(clear());
   }
 }
